@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import signal
 import codecs
 
@@ -9,6 +10,7 @@ from append import Append
 from log import Log
 
 talklog = codecs.open("talk.log", mode="w", encoding="utf-8")
+# talklog = sys.stdout
 
 # TODO: "dst" queue should be hidden by `Pipeline` abstraction.
 recording = Recording()

@@ -18,8 +18,20 @@ class Recording(Pipeline):
         self.dst = queue.Queue()
         self.buffer = np.empty(ACTUAL_BUFFER_SIZE, dtype=np.float32)
         self.bins = np.ones(100) / 100
+        self.e = 0
 
-    def mic(self):
+    def up(self):
+        from pythoncom import CoInitialize
+        CoInitialize()
+        self.mic = self.__mic()
+        self.mic.__enter__()
+
+    def down(self):
+        self.mic.__exit__()
+        from pythoncom import CoUninitialize
+        CoUninitialize()
+
+    def __mic(self):
         m = sc.get_microphone(
             id=sc.default_microphone().name,
             include_loopback=False,
@@ -40,24 +52,17 @@ class Recording(Pipeline):
         se += vol.argmin()
         return (sb, se)
 
-    def run(self):
-        from pythoncom import CoInitialize, CoUninitialize
-        CoInitialize()
+    def process(self):
+        mic = self.mic
 
-        with self.mic() as mic:
-            e = 0
+        self.e = self.__pool_audio(mic, self.buffer, self.e)
 
-            while not self.closed:
-                e = self.__pool_audio(mic, self.buffer, e)
+        sb, se = self.__find_segment(self.buffer, self.e)
 
-                sb, se = self.__find_segment(self.buffer, e)
+        # send recorded audio dst for next pipeline
+        self.dst.put({"audio": self.buffer[sb:se]})
 
-                # send recorded audio dst for next pipeline
-                self.dst.put({"audio": self.buffer[sb:se]})
-
-                prev_buffer = self.buffer
-                self.buffer = np.empty(ACTUAL_BUFFER_SIZE, dtype=np.float32)
-                self.buffer[:e-se] = prev_buffer[se:e]
-                e = e - se
-
-        CoUninitialize()
+        prev_buffer = self.buffer
+        self.buffer = np.empty(ACTUAL_BUFFER_SIZE, dtype=np.float32)
+        self.buffer[:self.e-se] = prev_buffer[se:self.e]
+        self.e = self.e - se

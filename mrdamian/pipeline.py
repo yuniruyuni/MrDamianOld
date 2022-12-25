@@ -13,6 +13,12 @@ class Pipeline:
     def close(self) -> None:
         self.closed = True
 
+    def up(self) -> None:
+        pass
+
+    def down(self) -> None:
+        pass
+
     def process(self):
         """
         The process method. It should be implemented from concrete pipelines.
@@ -21,10 +27,15 @@ class Pipeline:
         pass
 
     def run(self):
-        while not self.closed:
-            try:
-                self.process()
-            except Exception as e:
-                print("pipeline thread is broken because of: ")
-                print(e)
-                raise
+        try:
+            self.up()
+            while not self.closed:
+                try:
+                    self.process()
+                except Exception as e:
+                    print("pipeline thread is broken because of: ")
+                    print(e)
+                    raise
+        except Exception as e:
+            self.down()
+            raise
