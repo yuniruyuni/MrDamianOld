@@ -3,6 +3,7 @@
 
 import threading
 
+
 class Pipeline:
     def start(self) -> threading.Thread:
         self.closed = False
@@ -36,6 +37,6 @@ class Pipeline:
                     print("pipeline thread is broken because of: ")
                     print(e)
                     raise
-        except Exception as e:
+        except Exception:
             self.down()
             raise

@@ -3,6 +3,7 @@
 
 from pipeline import Pipeline
 
+
 class Log(Pipeline):
     def __init__(self, src, target, io):
         self.src = src

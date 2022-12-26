@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import soundcard as sc
-import numpy as np
 import queue
 import whisper
 
 from pipeline import Pipeline
+
 
 class Recognize(Pipeline):
     def __init__(self, src, name):

@@ -3,10 +3,11 @@
 
 import sys
 import signal
-import codecs
+# import codecs # for outputting files.
 
 from recording import Recording
 from recognize import Recognize
+
 # from append import Append
 from log import Log
 
@@ -21,12 +22,14 @@ log = Log(recognize.dst, "text", talklog)
 
 pipes = [recording, recognize, log]
 
+
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     threads = [pipe.start() for pipe in pipes]
     for thread in threads:
         thread.join()
+
 
 if __name__ == "__main__":
     main()

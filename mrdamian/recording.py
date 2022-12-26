@@ -7,10 +7,12 @@ import queue
 
 from pipeline import Pipeline
 
-SAMPLE_RATE = 16000 # sampling rate required from whisper model.
-INTERVAL = 3 # 3-seconds
-RECORD_SIZE = 1024 * 4 # 4KiB
-BUFFER_SIZE = SAMPLE_RATE * INTERVAL + RECORD_SIZE # this addition is for padding.
+SAMPLE_RATE = 16000  # sampling rate required from whisper model.
+INTERVAL = 3  # 3-seconds
+RECORD_SIZE = 1024 * 4  # 4KiB
+# size of buffer. RECORD_SIZE addition is for padding.
+BUFFER_SIZE = SAMPLE_RATE * INTERVAL + RECORD_SIZE
+
 
 class Recording(Pipeline):
     def __init__(self, threshold):
@@ -21,6 +23,7 @@ class Recording(Pipeline):
 
     def up(self):
         from pythoncom import CoInitialize
+
         CoInitialize()
         self.mic = self.__mic()
         self.mic.__enter__()
@@ -28,6 +31,7 @@ class Recording(Pipeline):
     def down(self):
         self.mic.__exit__()
         from pythoncom import CoUninitialize
+
         CoUninitialize()
 
     def __mic(self):
@@ -45,11 +49,11 @@ class Recording(Pipeline):
         return e
 
     def __find_segment(self, audio, e):
-        sb = 0 # all segments is started from start of the buffer.
-        se = (e*4)//5
+        sb = 0  # all segments is started from start of the buffer.
+        se = (e * 4) // 5
         # moving average for each 100 samples.
         bins = np.ones(100) / 100
-        vol = np.convolve(audio[se:e] ** 2, bins, 'same')
+        vol = np.convolve(audio[se:e] ** 2, bins, "same")
         se += vol.argmin()
         return (sb, se)
 

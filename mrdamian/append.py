@@ -4,6 +4,7 @@
 from pipeline import Pipeline
 import queue
 
+
 class Append(Pipeline):
     def __init__(self, src, val):
         self.src = src
