@@ -12,6 +12,7 @@ from translate import Translate
 # from append import Append
 from log import Log
 
+
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -23,7 +24,7 @@ def main():
     # TODO: "dst" queue should be hidden by `Pipeline` abstraction.
     recording = Recording(0.001)
     recognize = Recognize(recording.dst, "audio")
-    translate = Translate(recognize.dst)
+    translate = Translate(recognize.dst, "{text}", "{lang}", "EN-US")
     # append = Append(recording.dst, {"msg": "audio detected!"})
     log = Log(translate.dst, "text", talklog)
 

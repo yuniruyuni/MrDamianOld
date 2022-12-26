@@ -10,30 +10,29 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 
+
 class Translate(Component):
-    def __init__(self, src):
+    def __init__(self, src, text, srclang, dstlang):
         self.src = src
         self.dst = queue.Queue()
-
         self.api = deepl.Translator(config['DEEPL_API_KEY'])
+        self.text = text
+        self.srclang = srclang
+        self.dstlang = dstlang
 
     def process(self):
         msg = self.src.get()
 
-        srclang = "JA"
-        dstlang = "EN-US"
-
-        # srclang = msg[self.srclang]
-        # dstlang = self.dstlang
+        text = self.text.format(**msg)
+        srclang = self.srclang.format(**msg).upper()
+        dstlang = self.dstlang.format(**msg).upper()
 
         try:
             res = self.api.translate_text(
-                msg["text"],
+                text,
                 source_lang=srclang,
                 target_lang=dstlang,
             )
-            msg["text"] = res.text
-            msg["lang"] = dstlang
-            self.dst.put(msg)
+            self.dst.put(dict(msg, text=res.text, lang=dstlang))
         except Exception as e:
             print(e)

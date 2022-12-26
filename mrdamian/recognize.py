@@ -14,7 +14,6 @@ class Recognize(Component):
         self.name = name
         self.model = whisper.load_model("medium")
         self.options = whisper.DecodingOptions
-        self.options.language = "ja"
 
     def process(self):
         msg = self.src.get()
@@ -28,5 +27,4 @@ class Recognize(Component):
 
         result = whisper.decode(self.model, mel, self.options)
 
-        val = {"lang": lang, "text": result.text}
-        self.dst.put(dict(msg, **val))
+        self.dst.put(dict(msg, lang=lang, text=result.text))
