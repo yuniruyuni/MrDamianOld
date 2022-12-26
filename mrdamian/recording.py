@@ -5,7 +5,7 @@ import soundcard as sc
 import numpy as np
 import queue
 
-from pipeline import Pipeline
+from mrdamian.component import Component
 
 SAMPLE_RATE = 16000  # sampling rate required from whisper model.
 INTERVAL = 3  # 3-seconds
@@ -14,7 +14,7 @@ RECORD_SIZE = 1024 * 4  # 4KiB
 BUFFER_SIZE = SAMPLE_RATE * INTERVAL + RECORD_SIZE
 
 
-class Recording(Pipeline):
+class Recording(Component):
     def __init__(self, threshold):
         self.dst = queue.Queue()
         self.buffer = np.empty(BUFFER_SIZE, dtype=np.float32)

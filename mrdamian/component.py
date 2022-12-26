@@ -4,7 +4,7 @@
 import threading
 
 
-class Pipeline:
+class Component:
     def start(self) -> threading.Thread:
         self.closed = False
         thread = threading.Thread(target=self.run, daemon=True)

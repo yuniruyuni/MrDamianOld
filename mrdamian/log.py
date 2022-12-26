@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pipeline import Pipeline
+from mrdamian.component import Component
 
 
-class Log(Pipeline):
+class Log(Component):
     def __init__(self, src, target, io):
         self.src = src
         self.io = io

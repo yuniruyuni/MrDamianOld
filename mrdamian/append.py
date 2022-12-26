@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pipeline import Pipeline
+from mrdamian.component import Component
 import queue
 
 
-class Append(Pipeline):
+class Append(Component):
     def __init__(self, src, val):
         self.src = src
         self.dst = queue.Queue()

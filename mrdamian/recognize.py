@@ -4,10 +4,10 @@
 import queue
 import whisper
 
-from pipeline import Pipeline
+from mrdamian.component import Component
 
 
-class Recognize(Pipeline):
+class Recognize(Component):
     def __init__(self, src, name):
         self.src = src
         self.dst = queue.Queue()
