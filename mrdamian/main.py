@@ -7,6 +7,7 @@ import signal
 
 from recording import Recording
 from recognize import Recognize
+from translate import Translate
 
 # from append import Append
 from log import Log
@@ -22,10 +23,11 @@ def main():
     # TODO: "dst" queue should be hidden by `Pipeline` abstraction.
     recording = Recording(0.001)
     recognize = Recognize(recording.dst, "audio")
+    translate = Translate(recognize.dst)
     # append = Append(recording.dst, {"msg": "audio detected!"})
-    log = Log(recognize.dst, "text", talklog)
+    log = Log(translate.dst, "text", talklog)
 
-    pipes = [recording, recognize, log]
+    pipes = [recording, recognize, translate, log]
 
     threads = [pipe.start() for pipe in pipes]
     print("started!")
