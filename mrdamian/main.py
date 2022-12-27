@@ -3,8 +3,8 @@
 
 import sys
 import signal
-# import codecs # for outputting files.
 import asyncio
+# import codecs # for outputting files.
 
 from recording import Recording
 from recognize import Recognize
@@ -29,7 +29,7 @@ async def run():
     # log = Log(translate.dst, "text", talklog)
     send = Send(bot, translate.dst)
 
-    pipes = [receive, recording, recognize, translate, send]
+    pipes = [receive, translate, send]
 
     tasks = [asyncio.create_task(pipe.run()) for pipe in pipes]
     print("started!")

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import typing
 import threading
-import asyncio
 
 
 class Component:
@@ -12,7 +12,7 @@ class Component:
     def down(self) -> None:
         pass
 
-    async def process(self):
+    async def process(self, slots):
         """
         The process method. It should be implemented from concrete pipelines.
         This method will do something when event comes this pipeline.

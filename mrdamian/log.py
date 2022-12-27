@@ -6,7 +6,7 @@ from mrdamian.component import Component
 
 class Log(Component):
     def __init__(self, src, target, io):
-        self.src = src
+        self.src = src.connect()
         self.io = io
         self.target = target
 

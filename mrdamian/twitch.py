@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import twitchio
-import asyncio
 
 from twitchio.ext import commands
 
 from mrdamian.component import Component
+from mrdamian.pipeline import Pipeline
 
 from dotenv import dotenv_values
 
@@ -15,7 +15,7 @@ config = dotenv_values(".env")
 class Bot(commands.Bot):
     def __init__(self):
         self.name = config['TWITCH_USERNAME']
-        self.dst = asyncio.Queue()
+        self.dst = Pipeline()
         super().__init__(
             token=config['TWITCH_OAUTH'],
             prefix='?',
@@ -47,9 +47,9 @@ class Receive(Component, commands.Bot):
 class Send(Component, commands.Bot):
     def __init__(self, bot, src):
         self.bot = bot
-        self.src = src
+        self.src = src.connect()
 
     async def process(self):
         msg = await self.src.get()
         for channel in self.bot.connected_channels:
-            await channel.send(f"translated: {msg['text']}")
+            await channel.send(f"{msg['text']}")

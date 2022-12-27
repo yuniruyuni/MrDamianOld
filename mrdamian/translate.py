@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import asyncio
+import typing
 import deepl
 
 from mrdamian.component import Component
+from mrdamian.pipeline import Pipeline
 
 from dotenv import dotenv_values
 
@@ -13,8 +14,8 @@ config = dotenv_values(".env")
 
 class Translate(Component):
     def __init__(self, src, text, srclang, dstlang):
-        self.src = src
-        self.dst = asyncio.Queue()
+        self.src = src.connect()
+        self.dst = Pipeline()
         self.api = deepl.Translator(config['DEEPL_API_KEY'])
         self.text = text
         self.srclang = srclang

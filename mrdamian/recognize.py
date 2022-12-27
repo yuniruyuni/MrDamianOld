@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import asyncio
 import whisper
 
 from mrdamian.component import Component
+from mrdamian.pipeline import Pipeline
 
 
 class Recognize(Component):
     def __init__(self, src, name):
-        self.src = src
-        self.dst = asyncio.Queue()
+        self.src = src.connect()
+        self.dst = Pipeline()
         self.name = name
         self.model = whisper.load_model("medium")
         self.options = whisper.DecodingOptions
