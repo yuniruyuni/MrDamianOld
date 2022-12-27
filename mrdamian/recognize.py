@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import queue
+import asyncio
 import whisper
 
 from mrdamian.component import Component
@@ -10,13 +10,13 @@ from mrdamian.component import Component
 class Recognize(Component):
     def __init__(self, src, name):
         self.src = src
-        self.dst = queue.Queue()
+        self.dst = asyncio.Queue()
         self.name = name
         self.model = whisper.load_model("medium")
         self.options = whisper.DecodingOptions
 
-    def process(self):
-        msg = self.src.get()
+    async def process(self):
+        msg = await self.src.get()
         audio = msg[self.name]
         audio = whisper.pad_or_trim(audio)
 
@@ -27,4 +27,4 @@ class Recognize(Component):
 
         result = whisper.decode(self.model, mel, self.options)
 
-        self.dst.put(dict(msg, lang=lang, text=result.text))
+        await self.dst.put(dict(msg, lang=lang, text=result.text))

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import asyncio
 import soundcard as sc
 import numpy as np
-import queue
 
 from mrdamian.component import Component
 
@@ -16,7 +16,7 @@ BUFFER_SIZE = SAMPLE_RATE * INTERVAL + RECORD_SIZE
 
 class Recording(Component):
     def __init__(self, threshold):
-        self.dst = queue.Queue()
+        self.dst = asyncio.Queue()
         self.buffer = np.empty(BUFFER_SIZE, dtype=np.float32)
         self.e = 0
         self.threshold = threshold
@@ -41,9 +41,9 @@ class Recording(Component):
         )
         return m.recorder(samplerate=SAMPLE_RATE, channels=1)
 
-    def __pool_audio(self, mic, audio, e):
+    async def __pool_audio(self, mic, audio, e):
         while e < SAMPLE_RATE * INTERVAL:
-            data = mic.record(RECORD_SIZE)
+            data = await asyncio.to_thread(mic.record, RECORD_SIZE)
             audio[e:e+len(data)] = data.reshape(-1)
             e += len(data)
         return e
@@ -57,15 +57,15 @@ class Recording(Component):
         se += vol.argmin()
         return (sb, se)
 
-    def process(self):
-        self.e = self.__pool_audio(self.mic, self.buffer, self.e)
+    async def process(self):
+        self.e = await self.__pool_audio(self.mic, self.buffer, self.e)
 
         sb, se = self.__find_segment(self.buffer, self.e)
 
         # send recorded audio dst for next pipeline
         audio = self.buffer[sb:se]
         if (audio**2).max() > self.threshold:
-            self.dst.put({"audio": audio})
+            await self.dst.put({"audio": audio})
 
         prev_buffer = self.buffer
         self.buffer = np.empty(BUFFER_SIZE, dtype=np.float32)

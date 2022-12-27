@@ -10,7 +10,7 @@ class Log(Component):
         self.io = io
         self.target = target
 
-    def process(self):
+    async def process(self):
         msg = self.src.get()
         self.io.write(f"{msg[self.target]}\n")
         self.io.flush()
