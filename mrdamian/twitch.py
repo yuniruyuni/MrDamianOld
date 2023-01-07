@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import asyncio
 import twitchio
 
 from twitchio.ext import commands
@@ -11,6 +12,7 @@ from mrdamian.pipeline import Pipeline
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
+
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -36,20 +38,28 @@ class Bot(commands.Bot):
 
         await self.dst.put({"lang": "ja", "author": msg.author.name, "text": msg.content})
 
-class Receive(Component, commands.Bot):
-    def __init__(self, bot):
-        self.bot = bot
-        self.dst = bot.dst
 
-    async def process(self):
+class Receive(Component):
+    def __init__(self, bot):
+        super().__init__()
+        self.bot = bot
+        self.pipeline = bot.dst
+
+    async def up(self):
         await self.bot.start()
 
-class Send(Component, commands.Bot):
-    def __init__(self, bot, src):
-        self.bot = bot
-        self.src = src.connect()
+    async def down(self):
+        await self.bot.close()
 
-    async def process(self):
-        msg = await self.src.get()
+    async def process(self, args):
+        await asyncio.sleep(1)
+
+
+class Send(Component):
+    def __init__(self, bot):
+        super().__init__()
+        self.bot = bot
+
+    async def process(self, args):
         for channel in self.bot.connected_channels:
-            await channel.send(f"{msg['text']}")
+            await channel.send(args['text'])

@@ -17,17 +17,16 @@ from log import Log
 async def run():
     print("initializing...")
     # talklog = codecs.open("talk.log", mode="w", encoding="utf-8")
-    talklog = sys.stdout
+    # talklog = sys.stdout
     # TODO: "dst" queue should be hidden by `Pipeline` abstraction.
     bot = Bot()
     receive = Receive(bot)
     # recording = Recording(0.001)
-    # recognize = Recognize(recording.dst, "audio")
-    translate = Translate(receive.dst, "{text}", "{lang}", "EN-US")
-    # translate = Translate(recognize.dst, "{text}", "{lang}", "EN-US")
-    # append = Append(recording.dst, {"msg": "audio detected!"})
-    # log = Log(translate.dst, "text", talklog)
-    send = Send(bot, translate.dst)
+    # recognize = Recognize("audio").connect(recording)
+    translate = Translate("{text}", "{lang}", "EN-US").connect(receive)
+    # append = Append({"msg": "audio detected!"}).connect(recording)
+    # log = Log("text", talklog).connect(translate)
+    send = Send(bot).connect(translate)
 
     pipes = [receive, translate, send]
 

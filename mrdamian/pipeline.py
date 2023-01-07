@@ -3,9 +3,7 @@
 
 import asyncio
 
-from mrdamian.component import Component
-
-class Pipeline(Component):
+class Pipeline:
     def __init__(self):
         self.dsts = []
 

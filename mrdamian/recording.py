@@ -17,7 +17,7 @@ BUFFER_SIZE = SAMPLE_RATE * INTERVAL + RECORD_SIZE
 
 class Recording(Component):
     def __init__(self, threshold):
-        self.dst = Pipeline()
+        super().__init__()
         self.buffer = np.empty(BUFFER_SIZE, dtype=np.float32)
         self.e = 0
         self.threshold = threshold
@@ -58,15 +58,15 @@ class Recording(Component):
         se += vol.argmin()
         return (sb, se)
 
-    async def process(self):
+    async def process(self, msg):
         self.e = await self.__pool_audio(self.mic, self.buffer, self.e)
 
         sb, se = self.__find_segment(self.buffer, self.e)
 
-        # send recorded audio dst for next pipeline
+        # send recorded audio for next pipeline
         audio = self.buffer[sb:se]
         if (audio**2).max() > self.threshold:
-            await self.dst.put({"audio": audio})
+            await self.pipeline.put({"audio": audio})
 
         prev_buffer = self.buffer
         self.buffer = np.empty(BUFFER_SIZE, dtype=np.float32)

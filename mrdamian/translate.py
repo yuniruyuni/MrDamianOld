@@ -13,20 +13,17 @@ config = dotenv_values(".env")
 
 
 class Translate(Component):
-    def __init__(self, src, text, srclang, dstlang):
-        self.src = src.connect()
-        self.dst = Pipeline()
+    def __init__(self, text, srclang, dstlang):
+        super().__init__()
         self.api = deepl.Translator(config['DEEPL_API_KEY'])
         self.text = text
         self.srclang = srclang
         self.dstlang = dstlang
 
-    async def process(self):
-        msg = await self.src.get()
-
-        text = self.text.format(**msg)
-        srclang = self.srclang.format(**msg).upper()
-        dstlang = self.dstlang.format(**msg).upper()
+    async def process(self, slots):
+        text = self.text.format(**slots)
+        srclang = self.srclang.format(**slots).upper()
+        dstlang = self.dstlang.format(**slots).upper()
 
         try:
             res = self.api.translate_text(
@@ -34,6 +31,6 @@ class Translate(Component):
                 source_lang=srclang,
                 target_lang=dstlang,
             )
-            await self.dst.put(dict(msg, text=res.text, lang=dstlang))
+            await self.pipeline.put(dict(slots, text=res.text, lang=dstlang))
         except Exception as e:
             print(e)

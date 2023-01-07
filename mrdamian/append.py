@@ -6,11 +6,9 @@ from mrdamian.pipeline import Pipeline
 
 
 class Append(Component):
-    def __init__(self, src, val):
-        self.src = src.connect()
-        self.dst = Pipeline()
+    def __init__(self, val):
+        super().__init__()
         self.val = val
 
-    async def process(self):
-        msg = await self.src.get()
-        await self.dst.put(dict(msg, **self.val))
+    async def process(self, slots):
+        self.pipeline.put(dict(slots, **self.val))

@@ -8,16 +8,14 @@ from mrdamian.pipeline import Pipeline
 
 
 class Recognize(Component):
-    def __init__(self, src, name):
-        self.src = src.connect()
-        self.dst = Pipeline()
+    def __init__(self, name):
+        super().__init__()
         self.name = name
         self.model = whisper.load_model("medium")
         self.options = whisper.DecodingOptions
 
-    async def process(self):
-        msg = await self.src.get()
-        audio = msg[self.name]
+    async def process(self, slots):
+        audio = slots[self.name]
         audio = whisper.pad_or_trim(audio)
 
         mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
@@ -27,4 +25,4 @@ class Recognize(Component):
 
         result = whisper.decode(self.model, mel, self.options)
 
-        await self.dst.put(dict(msg, lang=lang, text=result.text))
+        self.pipeline.put(dict(slots, lang=lang, text=result.text))

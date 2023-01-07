@@ -5,12 +5,11 @@ from mrdamian.component import Component
 
 
 class Log(Component):
-    def __init__(self, src, target, io):
-        self.src = src.connect()
-        self.io = io
+    def __init__(self, target, io):
+        super().__init__()
         self.target = target
+        self.io = io
 
-    async def process(self):
-        msg = self.src.get()
-        self.io.write(f"{msg[self.target]}\n")
+    async def process(self, slots):
+        self.io.write(f"{slots[self.target]}\n")
         self.io.flush()

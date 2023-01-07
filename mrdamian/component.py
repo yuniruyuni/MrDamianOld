@@ -2,14 +2,31 @@
 # -*- coding: utf-8 -*-
 
 import typing
-import threading
 
+from mrdamian.pipeline import Pipeline
+from mrdamian.slot import Slot, ImmediateSlot
 
 class Component:
-    def up(self) -> None:
+    def __init__(self):
+        self.slot = ImmediateSlot()
+        self.pipeline = Pipeline()
+
+    def slots(self) -> typing.List[str]:
+        """
+        Show input slot names.
+        Slots will generated from message by user slot format setting.
+        """
+        []
+
+    def connect(self, *srcs):
+        srcs = [src.pipeline for src in srcs]
+        self.slot = Slot(*srcs)
+        return self
+
+    async def up(self):
         pass
 
-    def down(self) -> None:
+    async def down(self):
         pass
 
     async def process(self, slots):
@@ -21,13 +38,14 @@ class Component:
 
     async def run(self):
         try:
-            self.up()
+            await self.up()
             try:
                 while True:
-                    await self.process()
+                    slots = await self.slot.get()
+                    await self.process(slots)
             except Exception as e:
                 print("pipeline thread is broken because of: ")
                 print(e)
                 raise
         finally:
-            self.down()
+            await self.down()
